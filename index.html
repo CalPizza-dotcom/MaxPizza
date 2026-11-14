@@ -1,0 +1,1608 @@
+<!DOCTYPE html>  
+<html lang="it">  
+<head> 
+<link rel="manifest" href="manifest.json">
+
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  
+  <title>🍕 Master Pizza Calculator</title>  
+  
+  <!-- Google Fonts -->  
+  <link rel="preconnect" href="https://fonts.googleapis.com">  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">  
+  
+  <style>  
+    :root {  
+      --primary: #FF5722;  
+      --primary-dark: #E64A19;  
+      --secondary: #FFC107;  
+      --bg: #FFF8F0;  
+      --card-bg: #FFFFFF;  
+      --text: #2C3E50;  
+      --accent-green: #4CAF50;  
+      --accent-blue: #2196F3;  
+      --accent-purple: #8E24AA;  
+      --shadow: 0 10px 25px rgba(255, 87, 34, 0.15);  
+      --radius: 20px;  
+    }  
+  
+    * {  
+      box-sizing: border-box;  
+      margin: 0;  
+      padding: 0;  
+    }  
+  
+    body {  
+      font-family: 'Nunito', sans-serif;  
+      background-color: var(--bg);  
+      color: var(--text);  
+      padding: 20px;  
+      min-height: 100vh;  
+      background-image: radial-gradient(#FFD180 1.5px, transparent 1.5px);  
+      background-size: 30px 30px;  
+    }  
+  
+    .container {  
+      max-width: 1100px;  
+      margin: 0 auto;  
+    }  
+  
+    header {  
+      text-align: center;  
+      margin-bottom: 30px;  
+      position: relative;  
+    }  
+  
+    header h1 {  
+      font-family: 'Fredoka', cursive;  
+      font-size: 2.8rem;  
+      color: var(--primary);  
+      text-shadow: 3px 3px 0px #FFD180;  
+      display: inline-flex;  
+      align-items: center;  
+      gap: 12px;  
+      animation: bounce 2s infinite alternate ease-in-out;  
+    }  
+  
+    @keyframes bounce {  
+      0% { transform: translateY(0); }  
+      100% { transform: translateY(-8px); }  
+    }  
+  
+    header p {  
+      font-weight: 700;  
+      color: #7A6855;  
+      margin-top: 5px;  
+    }  
+  
+    .grid {  
+      display: grid;  
+      grid-template-columns: 1fr;  
+      gap: 25px;  
+    }  
+  
+    @media (min-width: 900px) {  
+      .grid {  
+        grid-template-columns: 1fr 1fr;  
+      }  
+    }  
+  
+    .card {  
+      background: var(--card-bg);  
+      border-radius: var(--radius);  
+      padding: 25px;  
+      box-shadow: var(--shadow);  
+      border: 3px solid #FFF0E0;  
+      transition: transform 0.3s ease, box-shadow 0.3s ease;  
+      position: relative;  
+      overflow: hidden;  
+    }  
+  
+    .card:hover {  
+      transform: translateY(-4px);  
+      box-shadow: 0 15px 30px rgba(255, 87, 34, 0.2);  
+    }  
+  
+    .card-title {  
+      font-family: 'Fredoka', cursive;  
+      font-size: 1.4rem;  
+      color: var(--primary);  
+      margin-bottom: 18px;  
+      display: flex;  
+      align-items: center;  
+      gap: 10px;  
+      border-bottom: 3px dashed #FFE0B2;  
+      padding-bottom: 8px;  
+    }  
+  
+    /* TASTI STILE OGGI COSA VUOI IMPASTARE */
+    .preset-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .preset-buttons-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .btn-preset {
+      padding: 12px 14px;
+      border: 2px solid #FFCC80;
+      border-radius: 14px;
+      background: #FFFDF9;
+      color: var(--text);
+      font-family: 'Fredoka', cursive;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+    .btn-preset:hover {
+      background: #FFE0B2;
+      transform: translateY(-2px);
+    }
+    .btn-preset.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary-dark);
+      box-shadow: 0 6px 15px rgba(255, 87, 34, 0.3);
+    }
+    .btn-preset-reset {
+      border-color: #90CAF9;
+      color: #1565C0;
+    }
+    .btn-preset-reset:hover {
+      background: #BBDEFB;
+    }
+  
+    .form-group {  
+      margin-bottom: 15px;  
+      display: flex;  
+      flex-direction: column;  
+      gap: 5px;  
+    }  
+  
+    .form-row {  
+      display: grid;  
+      grid-template-columns: 1fr 1fr;  
+      gap: 12px;  
+      align-items: start;  
+    }  
+  
+    .form-row-3 {  
+      display: grid;  
+      grid-template-columns: 2.2fr 1fr 1fr;  
+      gap: 8px;  
+      align-items: center;  
+      margin-bottom: 10px;  
+    }  
+  
+    .form-row .form-group label {  
+      min-height: 42px;  
+      display: flex;  
+      align-items: flex-end;  
+      line-height: 1.2;  
+    }  
+  
+    label {  
+      font-weight: 700;  
+      font-size: 0.95rem;  
+      color: #4A3E3D;  
+    }  
+  
+    .hint {  
+      font-size: 0.8rem;  
+      color: #88786A;  
+      font-style: italic;  
+    }  
+  
+    input, select {  
+      width: 100%;  
+      padding: 10px 14px;  
+      border: 2px solid #FFE0B2;  
+      border-radius: 12px;  
+      font-family: 'Nunito', sans-serif;  
+      font-weight: 700;  
+      font-size: 1rem;  
+      color: var(--text);  
+      background-color: #FFFDF9;  
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;  
+    }  
+  
+    input:focus, select:focus {  
+      outline: none;  
+      border-color: var(--primary);  
+      box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.15);  
+    }  
+  
+    input:disabled, button:disabled {  
+      background-color: #F0F0F0 !important;  
+      color: #888888 !important;  
+      border-color: #DDD !important;  
+      cursor: not-allowed !important;  
+      opacity: 0.6 !important;
+    }  
+  
+    .range-container {  
+      display: flex;  
+      align-items: center;  
+      gap: 10px;  
+    }  
+  
+    input[type="range"] {  
+      -webkit-appearance: none;  
+      appearance: none;  
+      height: 10px;  
+      border-radius: 5px;  
+      background: #FFE0B2;  
+      outline: none;  
+      padding: 0;  
+      border: none;  
+      cursor: pointer;  
+    }  
+  
+    input[type="range"]::-webkit-slider-thumb {  
+      -webkit-appearance: none;  
+      appearance: none;  
+      width: 22px;  
+      height: 22px;  
+      border-radius: 50%;  
+      background: var(--primary);  
+      cursor: pointer;  
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);  
+      transition: transform 0.1s;  
+    }  
+  
+    input[type="range"]::-webkit-slider-thumb:hover {  
+      transform: scale(1.15);  
+    }  
+  
+    .results-card {  
+      background: linear-gradient(135deg, #FFF6F0 0%, #FFFDF9 100%);  
+      border: 3px solid #FFCC80;  
+    }  
+  
+    .result-item {  
+      display: flex;  
+      justify-content: space-between;  
+      align-items: center;  
+      padding: 10px 14px;  
+      margin-bottom: 8px;  
+      background: white;  
+      border-radius: 12px;  
+      border: 1px solid #FFE0B2;  
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);  
+      transition: transform 0.2s;  
+    }  
+  
+    .result-item:hover {  
+      transform: scale(1.02);  
+    }  
+  
+    .result-item .label {  
+      font-weight: 700;  
+    }  
+  
+    .result-item .val {  
+      font-family: 'Fredoka', cursive;  
+      font-size: 1.25rem;  
+      color: var(--primary);  
+    }  
+  
+    .highlight-box {  
+      background: #E3F2FD;  
+      border: 2px dashed #90CAF9;  
+      border-radius: 14px;  
+      padding: 15px;  
+      text-align: center;  
+      margin-top: 15px;  
+    }  
+  
+    .highlight-box .temp-val {  
+      font-family: 'Fredoka', cursive;  
+      font-size: 2rem;  
+      color: var(--accent-blue);  
+    }  
+  
+    .btn-apply {  
+      width: 100%;  
+      margin-top: 10px;  
+      padding: 10px 14px;  
+      background: var(--primary);  
+      color: white;  
+      border: none;  
+      border-radius: 12px;  
+      font-family: 'Nunito', sans-serif;  
+      font-weight: 800;  
+      font-size: 0.95rem;  
+      cursor: pointer;  
+      transition: background-color 0.2s, transform 0.1s;  
+      box-shadow: 0 4px 10px rgba(255, 87, 34, 0.25);  
+    }  
+  
+    .btn-apply:hover {  
+      background: var(--primary-dark);  
+      transform: translateY(-2px);  
+    }  
+  
+    .btn-toggle {  
+      width: 100%;  
+      padding: 14px 20px;  
+      color: white;  
+      border: none;  
+      border-radius: var(--radius);  
+      font-family: 'Fredoka', cursive;  
+      font-size: 1.15rem;  
+      cursor: pointer;  
+      display: flex;  
+      align-items: center;  
+      justify-content: center;  
+      gap: 10px;  
+      transition: transform 0.2s, box-shadow 0.2s;  
+      margin-top: 15px;  
+    }  
+  
+    .btn-toggle-advanced {  
+      background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);  
+      box-shadow: 0 6px 15px rgba(245, 124, 0, 0.25);  
+    }  
+    .btn-toggle-advanced:hover {  
+      transform: translateY(-2px);  
+      box-shadow: 0 10px 20px rgba(245, 124, 0, 0.35);  
+    }  
+  
+    .btn-toggle-teglia {  
+      background: linear-gradient(135deg, #29B6F6 0%, #0288D1 100%);  
+      box-shadow: 0 6px 15px rgba(2, 136, 209, 0.25);  
+    }  
+    .btn-toggle-teglia:hover {  
+      transform: translateY(-2px);  
+      box-shadow: 0 10px 20px rgba(2, 136, 209, 0.35);  
+    }  
+  
+    .btn-toggle-farina {  
+      background: linear-gradient(135deg, #AB47BC 0%, #7B1FA2 100%);  
+      box-shadow: 0 6px 15px rgba(123, 31, 162, 0.25);  
+    }  
+    .btn-toggle-farina:hover {  
+      transform: translateY(-2px);  
+      box-shadow: 0 10px 20px rgba(123, 31, 162, 0.35);  
+    }  
+  
+    .timeline-container {  
+      margin-top: 15px;  
+      display: flex;  
+      flex-direction: column;  
+      gap: 10px;  
+    }  
+  
+    .timeline-item {  
+      display: flex;  
+      align-items: center;  
+      justify-content: space-between;  
+      padding: 12px 16px;  
+      background: #FFFFFF;  
+      border-radius: 12px;  
+      border-left: 5px solid var(--primary);  
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);  
+    }  
+  
+    .timeline-item .time-tag {  
+      font-family: 'Fredoka', cursive;  
+      font-size: 1.05rem;  
+      color: #D84315;  
+      background: #FBE9E7;  
+      padding: 4px 10px;  
+      border-radius: 8px;  
+    }  
+  
+    .timeline-item .step-desc {  
+      font-weight: 700;  
+      font-size: 0.95rem;  
+      color: var(--text);  
+    }  
+  </style>  
+</head>  
+<body>  
+  
+  <!-- DATALIST FARINE COMMERCIALI PRECARICATE -->  
+  <datalist id="elencoFarine">  
+    <option value="Caputo Classica (00)">W 220 - Diretti brevi (4-6h)</option>  
+    <option value="Caputo Pizzeria (00)">W 265 - Classica napoletana (8-24h)</option>  
+    <option value="Caputo Nuvola (0)">W 270 - Contemporanea canotto (12-24h)</option>  
+    <option value="Caputo Cuoco / Chef Rossa">W 310 - Lunga maturazione (24-48h)</option>  
+    <option value="Caputo Nuvola Super">W 325 - Alta idratazione e prefermenti</option>  
+    <option value="Caputo Manitoba Oro">W 375 - Tagli e lunghissima maturazione</option>  
+    <option value="5 Stagioni Napoletana">W 300 - Pizza Napoletana STG</option>  
+    <option value="5 Stagioni Superiore">W 330 - Lunga lievitazione</option>  
+    <option value="5 Stagioni Manitoba">W 390 - Molto forte per biga e rinforzo</option>  
+    <option value="Garofalo W 260">W 260 - Media forza</option>  
+    <option value="Garofalo W 350 Forte">W 350 - Lunga maturazione e teglia</option>  
+    <option value="Polselli Classica">W 240 - Maturazione media</option>  
+    <option value="Polselli Vivace">W 290 - Pizza napoletana tradizionale</option>  
+    <option value="Polselli Super">W 330 - Teglia e frigo</option>  
+    <option value="Petra 5037 Pizza">W 300 - Contemporanea e alta idratazione</option>  
+    <option value="Petra 3 (Tipo 1)">W 280 - Macinata a pietra aromatica</option>  
+    <option value="Spadoni Gran Mugnaio Pizza">W 200 - Lievitazioni rapide</option>  
+    <option value="Casillo Origine Pizza">W 280 - Grano 100% italiano</option>  
+  </datalist>  
+  
+  <div class="container">  
+    <header>  
+      <h1>🍕 Calcolatore Impasto Pizza</h1>  
+      <p>Calcola dosaggi, idratazione, temperature, forza farina (W), biga e condimenti!</p>  
+    </header>  
+  
+    <div class="grid">  
+      <!-- COLONNA 1: INPUT -->  
+      <div class="left-col">  
+        
+        <!-- SEZIONE 0: OGGI COSA VUOI IMPASTARE? (PRESET) -->
+        <div class="card" style="margin-bottom: 25px; border-color: #FFB74D; background: #FFFDF9;">
+          <div class="card-title" style="color: #E65100; border-bottom-color: #FFE0B2;">
+            🍕 Oggi cosa vuoi impastare?
+          </div>
+          <div class="preset-buttons-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <button type="button" class="btn-preset" id="btnNapoletana">🔴 Napoletana Tradizionale</button>
+            <button type="button" class="btn-preset" id="btnContemporanea">✨ Pizza Contemporanea</button>
+            <button type="button" class="btn-preset" id="btnBiga">🥖 Biga Metodo Classico</button>
+            <button type="button" class="btn-preset" id="btnTegliaPreset">📐 Pizza in Teglia</button>
+            <button type="button" class="btn-preset btn-preset-reset" id="btnPersonalizza" style="grid-column: span 2;">⚙️ Personalizza</button>
+          </div>
+        </div>
+
+        <!-- SEZIONE 1: PARAMETRI IMPASTO -->  
+        <div class="card">  
+          <div class="card-title">⚙️ 1. Parametri Impasto</div>  
+  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>Numero Panetti</label>  
+              <input type="number" id="numPanetti" value="10" min="1" />  
+            </div>  
+            <div class="form-group">  
+              <label>Peso Panetto (g)</label>  
+              <input type="number" id="pesoPanetto" value="270" step="5" />  
+            </div>  
+          </div>  
+  
+          <!-- IDRATAZIONE -->  
+          <div class="form-group">  
+            <label>Idratazione Totale (%)</label>  
+            <div class="range-container">  
+              <input type="range" id="idratazioneSlider" value="62" min="0" max="100" step="1" />  
+              <input type="number" id="idratazione" value="62" min="0" max="100" step="1" style="width: 90px; text-align: center;" />  
+            </div>  
+            <span class="hint" id="hintIdratazione">Sostituisci con la % desiderata (es. 55%, 60%, 62%)</span>  
+          </div>  
+  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>Sale / Litro Acqua (g)</label>  
+              <input type="number" id="saleLitro" value="43" step="1" />  
+              <span class="hint" id="hintSale">Sale tra 40/60 gr per litro</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Olio su Farina (%)</label>  
+              <input type="number" id="olioPercent" value="0" step="0.5" />  
+              <span class="hint" id="hintOlio">0 per Napoletana, 2% per Teglia</span>  
+            </div>  
+          </div>  
+  
+          <div class="form-group">  
+            <label>Coeff. Macchina / Attrito (°C)</label>  
+            <input type="number" id="attrito" value="18" min="0" max="25" step="1" />  
+            <span class="hint">0 a mano, 2-5 planetaria, 15-18 spirale rapida</span>  
+          </div>
+        </div>  
+
+        <!-- SEZIONE 1AB: PARAMETRI BIGA -->  
+        <div id="bigaCardSection" class="card" style="margin-top: 15px; display: none; border-color: #8D6E63; background: #EFEBE9;">  
+          <div class="card-title" style="color: #4E342E; border-bottom-color: #D7CCC8;">  
+            🥖 Parametri Biga & Prefermento  
+          </div>  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>% Farina in Biga</label>  
+              <input type="number" id="bigaPerc" value="100" min="20" max="100" step="5" />  
+              <span class="hint">Es. 100% (tutta), 50% o 30%</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Idratazione Biga (%) <span style="font-size:0.75rem; color:#1565C0;">(Auto)</span></label>  
+              <input type="number" id="bigaIdro" value="44" min="40" max="60" step="1" />  
+              <span class="hint" id="hintBigaIdro">Regolata automaticamente su ore e temp</span>  
+            </div>  
+          </div>  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>Temp. Biga (°C)</label>  
+              <input type="number" id="bigaTemp" value="18" min="12" max="30" step="0.5" />  
+              <span class="hint">Ambiente di fermentazione biga</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Ore di Fermentazione Biga</label>  
+              <input type="number" id="bigaOre" value="18" min="8" max="48" step="1" />  
+              <span class="hint">Es. 16, 18 o 24 ore</span>  
+            </div>  
+          </div>  
+          <div class="form-row" style="margin-top: 10px;">  
+            <div class="form-group">  
+              <label>Temp. Target Fine Biga (°C)</label>  
+              <input type="number" id="bigaTargetTemp" value="20" min="16" max="24" step="0.5" />  
+              <span class="hint">Ottimale 19-21°C</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Forza Farina Biga (W)</label>  
+              <input type="number" id="bigaW" value="380" min="300" max="420" step="10" />  
+              <span class="hint">Es. Manitoba / W380</span>  
+            </div>  
+          </div>  
+        </div>  
+  
+        <!-- TASTO TOGGLE CALCOLATORE FORZA FARINA (W) -->  
+        <button type="button" id="btnToggleFarina" class="btn-toggle btn-toggle-farina">  
+          🌾 Calcolatore Forza Farina (W Mix)  
+        </button>  
+  
+        <!-- SEZIONE 1B: CALCOLATORE FORZA FARINA (COLLASSABILE) -->  
+        <div id="farinaSection" class="card" style="margin-top: 15px; display: none; border-color: #CE93D8;">  
+          <div class="card-title" style="color: #7B1FA2; border-bottom-color: #E1BEE7;">  
+            🌾 Miscela & Forza Farina (Max 3 Farine)  
+          </div>  
+  
+          <!-- BOX W TARGET CALBAL -->  
+          <div style="background: #EDE7F6; border: 2px dashed #B39DDB; border-radius: 12px; padding: 12px; margin-bottom: 15px;">  
+            <div style="display: flex; justify-content: space-between; align-items: center;">  
+              <div>  
+                <div style="font-size: 0.8rem; font-weight: 800; color: #512DA8; text-transform: uppercase;">W Target Consigliato</div>  
+                <div style="font-size: 0.8rem; color: #555;">Calcolato su <strong id="txtOreTotaliW">0 ore eq.</strong> e idratazione</div>  
+              </div>  
+              <div id="resWTarget" style="font-family: 'Fredoka', cursive; font-size: 1.35rem; color: #4A148C; text-align: right;">  
+                W 248 (W 240 - 260)  
+              </div>  
+            </div>  
+          </div>  
+  
+          <div class="form-group">  
+            <label>Quante farine vuoi miscelare?</label>  
+            <select id="numFarineSel">  
+              <option value="1">1 Farina (Semplice)</option>  
+              <option value="2" selected>2 Farine (Mix classico)</option>  
+              <option value="3">3 Farine (Blend avanzato)</option>  
+            </select>  
+            <span class="hint">Digita liberamente il nome o sceglilo dall'elenco per inserire il W in automatico.</span>  
+          </div>  
+  
+          <!-- HEADER TABELLINA FARINE -->  
+          <div class="form-row-3" style="font-weight: 800; font-size: 0.85rem; color: #6A1B9A; padding-bottom: 4px;">  
+            <div>Nome o Scelta Farina</div>  
+            <div>Forza (W)</div>  
+            <div>% Mix</div>  
+          </div>  
+  
+          <!-- FARINA 1 -->  
+          <div class="form-row-3" id="rowFarina1">  
+            <input type="text" id="f1Nome" list="elencoFarine" value="Caputo Pizzeria (00)" placeholder="Scegli o digita..." />  
+            <input type="number" id="f1W" value="265" min="50" max="450" step="5" placeholder="W" />  
+            <input type="number" id="f1Perc" value="70" min="0" max="100" step="5" placeholder="%" />  
+          </div>  
+  
+          <!-- FARINA 2 -->  
+          <div class="form-row-3" id="rowFarina2">  
+            <input type="text" id="f2Nome" list="elencoFarine" value="Caputo Classica (00)" placeholder="Scegli o digita..." />  
+            <input type="number" id="f2W" value="220" min="50" max="450" step="5" placeholder="W" />  
+            <input type="number" id="f2Perc" value="30" min="0" max="100" step="5" placeholder="%" />  
+          </div>  
+  
+          <!-- FARINA 3 -->  
+          <div class="form-row-3" id="rowFarina3" style="display: none;">  
+            <input type="text" id="f3Nome" list="elencoFarine" value="Caputo Nuvola (0)" placeholder="Scegli o digita..." />  
+            <input type="number" id="f3W" value="270" min="50" max="450" step="5" placeholder="W" />  
+            <input type="number" id="f3Perc" value="0" min="0" max="100" step="5" placeholder="%" />  
+          </div>  
+  
+          <!-- RISULTATI BLEND -->  
+          <div class="result-item" style="background: #F3E5F5; border-color: #E1BEE7; margin-top: 12px;">  
+            <span class="label">Forza Media del tuo Mix</span>  
+            <span class="val" id="resWMedio" style="color: #7B1FA2;">252 W</span>  
+          </div>  
+  
+          <!-- VERIFICA COMPATIBILITA' TARGET VS MIX -->  
+          <div id="checkCompatibilitaW" style="margin-top: 8px; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; line-height: 1.4; text-align: left;">  
+            Caricamento compatibilità...  
+          </div>  
+  
+          <!-- RIPARTIZIONE GRAMMATURE -->  
+          <div id="boxGrammatureFarine" style="margin-top: 10px; background: #FFFDF9; border: 1px dashed #CE93D8; border-radius: 12px; padding: 12px; font-size: 0.9rem;">  
+            <div style="font-weight: 800; color: #6A1B9A; margin-bottom: 6px;">⚖️ Dosi Farine per questo impasto:</div>  
+            <div id="dosiFarinaDettaglio">--</div>  
+          </div>  
+        </div>  
+  
+        <!-- TASTO TOGGLE CALCOLATORE TEGLIA -->  
+        <button type="button" id="btnToggleTeglia" class="btn-toggle btn-toggle-teglia">  
+          📐 Calcolatore Dimensione Teglia  
+        </button>  
+  
+        <!-- SEZIONE 1C: CALCOLATORE TEGLIA -->  
+        <div id="tegliaSection" class="card" style="margin-top: 15px; display: none; border-color: #90CAF9;">  
+          <div class="card-title" style="color: #0288D1; border-bottom-color: #BBDEFB;">📐 Calcolatore Dimensione Teglia</div>  
+          <div class="form-group">  
+            <label>Forma Teglia</label>  
+            <select id="tipoTeglia">  
+              <option value="rettangolare">Rettangolare (Base × Altezza)</option>  
+              <option value="tonda">Tonda (Diametro)</option>  
+            </select>  
+          </div>  
+  
+          <!-- CAMPI RETTANGOLARE -->  
+          <div id="rowRettangolare" class="form-row">  
+            <div class="form-group">  
+              <label>Base (cm)</label>  
+              <input type="number" id="tegliaBase" value="40" min="10" step="1" />  
+            </div>  
+            <div class="form-group">  
+              <label>Altezza (cm)</label>  
+              <input type="number" id="tegliaAltezza" value="30" min="10" step="1" />  
+            </div>  
+          </div>  
+  
+          <!-- CAMPI TONDA -->  
+          <div id="rowTonda" class="form-group" style="display: none;">  
+            <label>Diametro Teglia (cm)</label>  
+            <input type="number" id="tegliaDiametro" value="32" min="10" step="1" />  
+          </div>  
+  
+          <div class="form-group">  
+            <label>Fattore Spessore (g/cm²)</label>  
+            <select id="tegliaFattore">  
+              <option value="0.40">Sottile / Scrocchiarella (0,40)</option>  
+              <option value="0.50" selected>Standard / Teglia Romana (0,50)</option>  
+              <option value="0.60">Alta / Soffice (0,60)</option>  
+            </select>  
+            <span class="hint">Coefficiente di densità impasto/superficie</span>  
+          </div>  
+  
+          <div class="result-item" style="background: #FFF3E0; border-color: #FFE0B2; margin-top: 10px;">  
+            <span class="label">Peso Panetto Teglia</span>  
+            <span class="val" id="resPesoTeglia">600 g</span>  
+          </div>  
+  
+          <button type="button" id="btnApplicaTeglia" class="btn-apply">  
+            🎯 Usa questo peso per i Panetti  
+          </button>  
+        </div>  
+  
+        <!-- TASTO TOGGLE MODALITÀ AVANZATA -->  
+        <button type="button" id="btnToggleAdvanced" class="btn-toggle btn-toggle-advanced">  
+          ⚙️ Modalità Avanzata: Calcolo Orari e Timeline  
+        </button>  
+  
+        <!-- CARD MODALITÀ AVANZATA -->  
+        <div id="advancedSection" class="card" style="margin-top: 15px; display: none; border-color: #FFB74D;">  
+          <div class="card-title" style="color: #E65100; border-bottom-color: #FFE0B2;">  
+            🕒 Tabella di Marcia & Timeline  
+          </div>  
+  
+          <div class="form-group">  
+            <label>🍕 Data e Ora Infornata Target</label>  
+            <input type="datetime-local" id="orarioInfornata" />  
+            <span class="hint">Imposta quando vuoi cuocere e servire la pizza</span>  
+          </div>  
+  
+          <div class="form-row" id="advRowTA">  
+            <div class="form-group">  
+              <label id="advLblOreTA">Ore Temp. Ambiente</label>  
+              <input type="number" id="durataAppretto" value="5" step="0.5" min="0" />  
+              <span class="hint" id="advHintOreTA">Lievitazione panetti</span>  
+            </div>  
+            <div class="form-group" id="groupAdvPuntata">  
+              <label>Ore Puntata (T.A.)</label>  
+              <input type="number" id="durataPuntata" value="2" step="0.5" min="0" />  
+              <span class="hint">Riposo massa intera</span>  
+            </div>  
+          </div>  
+  
+          <div class="form-row" id="advRowFrigo">  
+            <div class="form-group">  
+              <label>Ore Frigo</label>  
+              <input type="number" id="advOreFrigo" value="15" step="1" />  
+              <span class="hint">Ore complessive di frigo</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Temp. Frigo (°C)</label>  
+              <input type="number" id="advTempFrigo" value="6" step="0.5" />  
+              <span class="hint">Temperatura del frigo</span>  
+            </div>  
+          </div>  
+  
+          <!-- TIMELINE RISULTATI -->  
+          <div class="timeline-container" id="timelineStandard">  
+            <div class="timeline-item">  
+              <span class="step-desc">🌀 Inizio Impastamento (20 min)</span>  
+              <span class="time-tag" id="timeImpasto">--:--</span>  
+            </div>  
+            <div class="timeline-item">  
+              <span class="step-desc">❄️ Ingresso in Frigo</span>  
+              <span class="time-tag" id="timeFrigoIn">--:--</span>  
+            </div>  
+            <div class="timeline-item">  
+              <span class="step-desc">✂️ Uscita Frigo & Staglio (20 min)</span>  
+              <span class="time-tag" id="timeStaglio">--:--</span>  
+            </div>  
+            <div class="timeline-item" style="border-left-color: var(--accent-green);">  
+              <span class="step-desc">🍕 Infornata & Cottura</span>  
+              <span class="time-tag" id="timeInfornata" style="background: #E8F5E9; color: #2E7D32;">--:--</span>  
+            </div>  
+          </div>  
+
+          <!-- TIMELINE BIGA (DINAMICA) -->
+          <div class="timeline-container" id="timelineBiga" style="display: none;">  
+            <div class="timeline-item" style="border-left-color: #8D6E63;">  
+              <span class="step-desc">🥖 Inizio Impasto Biga</span>  
+              <span class="time-tag" id="timeBigaStart" style="background: #EFEBE9; color: #4E342E;">--:--</span>  
+            </div>  
+            <div class="timeline-item">  
+              <span class="step-desc">🌀 Rinfresco & Impasto Finale</span>  
+              <span class="time-tag" id="timeRinfresco">--:--</span>  
+            </div>  
+            <div class="timeline-item">  
+              <span class="step-desc">✂️ Staglio / Formatura Panetti</span>  
+              <span class="time-tag" id="timeStaglioBiga">--:--</span>  
+            </div>  
+            <div class="timeline-item" style="border-left-color: var(--accent-green);">  
+              <span class="step-desc">🍕 Infornata & Cottura</span>  
+              <span class="time-tag" id="timeInfornataBiga" style="background: #E8F5E9; color: #2E7D32;">--:--</span>  
+            </div>  
+          </div>  
+
+        </div>  
+  
+        <!-- SEZIONE 2: TEMPI E TEMPERATURE -->  
+        <div class="card" style="margin-top: 25px;">  
+          <div class="card-title">⏳ 2. Tempi e Temperature</div>  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label id="lblOreTA">Ore Temp. Ambiente</label>  
+              <input type="number" id="oreTA" value="8" step="0.5" />  
+              <span id="hintOreTA" class="hint">Ore fuori dal frigo</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Temp. Ambiente (°C)</label>  
+              <input type="number" id="tempTA" value="20" step="0.5" />  
+              <span id="hintTempTA" class="hint">Temperatura ambiente</span>  
+            </div>  
+          </div>  
+  
+          <div class="form-row" id="rowFrigoMain">  
+            <div class="form-group" id="groupMainOreFrigo">  
+              <label id="lblOreFrigo">Ore Frigo</label>  
+              <input type="number" id="oreFrigo" value="0" step="1" />  
+              <span id="hintOreFrigo" class="hint">Maturazione a freddo (opzionale)</span>  
+            </div>  
+            <div class="form-group" id="groupMainTempFrigo">  
+              <label id="lblTempFrigo">Temp. Frigo (°C)</label>  
+              <input type="number" id="tempFrigo" value="6" step="0.5" />  
+              <span id="hintTempFrigo" class="hint">Temperatura del frigo</span>  
+            </div>  
+          </div>  
+  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>Temp. Target Impasto (°C)</label>  
+              <input type="number" id="tempTarget" value="25" step="0.5" />  
+            </div>  
+            <div class="form-group">  
+              <label>Temp. Farina (°C)</label>  
+              <input type="number" id="tempFarina" value="19" step="0.5" />  
+            </div>  
+          </div>  
+        </div>  
+      </div>  
+  
+      <!-- COLONNA 2: RISULTATI & CONDIMENTI -->  
+      <div class="right-col">  
+        <!-- RISULTATI PESI -->  
+        <div class="card results-card">  
+          <div class="card-title">📊 3. Ingredienti e Pesi</div>  
+          <div class="result-item" style="border-left: 5px solid var(--primary);">  
+            <span class="label">Peso Impasto Totale</span>  
+            <span class="val" id="resPesoTotale">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">🌾 Farina Totale</span>  
+            <span class="val" id="resFarina">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">💧 Acqua Totale</span>  
+            <span class="val" id="resAcqua">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">🧂 Sale Totale</span>  
+            <span class="val" id="resSale">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">🫒 Olio EVO</span>  
+            <span class="val" id="resOlio">0 g</span>  
+          </div>  
+
+          <!-- BLOCCO SPECIALE SCOMPOSIZIONE BIGA -->  
+          <div id="bigaResultsBox" style="display: none; margin: 12px 0; background: #EFEBE9; border: 2px dashed #A1887F; border-radius: 12px; padding: 12px;">  
+            <div style="font-family: 'Fredoka', cursive; font-size: 1.05rem; color: #4E342E; margin-bottom: 8px;">🥖 Scomposizione Biga & Rinfresco</div>  
+            
+            <div style="font-size: 0.85rem; font-weight: 800; color: #6D4C41; margin-top: 6px; text-transform: uppercase;">1. FASE BIGA (Preimpasto)</div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 3px;"><span>🌾 Farina in Biga:</span> <strong id="resBigaFarina">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🌾 Forza Farina Biga:</span> <strong id="resBigaWDisplay" style="color: #7B1FA2;">W 380</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>💧 Acqua in Biga:</span> <strong id="resBigaAcqua">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🧫 Lievito Fresco Biga:</span> <strong id="resBigaLievito" style="color: #2E7D32;">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 4px; padding-top: 4px; border-top: 1px dotted #D7CCC8;"><span>🧊 Temp. Acqua Biga:</span> <strong id="resBigaTempAcqua" style="color: #1565C0;">0 °C</strong></div>  
+
+            <div style="font-size: 0.85rem; font-weight: 800; color: #6D4C41; margin-top: 10px; text-transform: uppercase;">2. FASE RINFRESCO (Impasto Finale)</div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 3px;"><span>🌾 Farina di Rinfresco:</span> <strong id="resRinfrescoFarina">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🌾 Forza Farina Rinfresco:</span> <strong id="resRinfrescoWDisplay" style="color: #7B1FA2;">W 260</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>💧 Acqua di Rinfresco:</span> <strong id="resRinfrescoAcqua">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 2px; padding-top: 2px; border-top: 1px dotted #D7CCC8;"><span>🧊 Temp. Acqua Rinfresco:</span> <strong id="resRinfrescoTempAcqua" style="color: #1565C0;">0 °C</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🧫 Lievito Rinfresco:</span> <strong id="resRinfrescoLievito" style="color: #2E7D32;">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🍯 Malto Rinfresco:</span> <strong id="resRinfrescoMalto" style="color: #E65100;">0 g</strong></div>  
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>🧂 Sale di Rinfresco:</span> <strong id="resRinfrescoSale">0 g</strong></div>  
+          </div>  
+  
+          <div class="result-item" style="border-left: 4px solid var(--accent-green);" id="itemLievitoFrescoStandard">  
+            <span class="label">🧫 Lievito Birra Fresco</span>  
+            <span class="val" id="resLievitoFresco" style="color: #2E7D32;">0 g</span>  
+          </div>  
+          <div class="result-item" id="itemLievitoSeccoStandard">  
+            <span class="label">🍞 Lievito Secco Caputo</span>  
+            <span class="val" id="resLievitoSecco">0 g</span>  
+          </div>  
+  
+          <!-- TEMPERATURA ACQUA E CALCOLO GHIACCIO -->  
+          <div class="highlight-box" id="standardWaterBox">  
+            <div style="font-weight: 700; color: #1565C0;">🧊 Temperatura Calcolata dell'Acqua</div>  
+            <div class="temp-val" id="resTempAcqua">0 °C</div>  
+              
+            <div id="iceBox" style="margin-top: 12px; padding-top: 12px; border-top: 2px dashed #90CAF9; display: none;">  
+              <div style="font-weight: 800; color: #0D47A1; font-size: 0.95rem; margin-bottom: 8px;">  
+                🧊 Temperatura &lt; 4°C: Utilizza il Ghiaccio!  
+              </div>  
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #FFFFFF; padding: 10px; border-radius: 10px; border: 1px solid #BBDEFB;">  
+                <div>  
+                  <div style="font-size: 0.8rem; color: #555; font-weight: 700;">🧊 Ghiaccio Tritato</div>  
+                  <div id="resGhiaccio" style="font-family: 'Fredoka', cursive; font-size: 1.2rem; color: #1E88E5;">0 g</div>  
+                </div>  
+                <div>  
+                  <div style="font-size: 0.8rem; color: #555; font-weight: 700;">💧 Acqua Liquida (4°C)</div>  
+                  <div id="resAcquaLiquida" style="font-family: 'Fredoka', cursive; font-size: 1.2rem; color: #1E88E5;">0 g</div>  
+                </div>  
+              </div>  
+            </div>  
+          </div>  
+        </div>  
+  
+        <!-- DOSAGGIO CONDIMENTI -->  
+        <div class="card" style="margin-top: 25px;">  
+          <div class="card-title">🍅 4. Condimenti (Pelati & Mozzarella)</div>  
+          <div class="form-row">  
+            <div class="form-group">  
+              <label>Pomodoro / Pizza (g)</label>  
+              <input type="number" id="pomoSingolo" value="85" step="5" />  
+              <span class="hint">(Dose media standard) o 120-150g per teglia.</span>  
+            </div>  
+            <div class="form-group">  
+              <label>Mozzarella / Pizza (g)</label>  
+              <input type="number" id="mozzSingola" value="90" step="5" />  
+              <span class="hint">(dose media standard) o 250gr/300gr per Teglia 30x40</span>  
+            </div>  
+          </div>  
+  
+          <div class="result-item" style="margin-top: 10px;">  
+            <span class="label">Pelati Totali</span>  
+            <span class="val" id="resPelati">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">🧂 Sale per Pelati (1.1%)</span>  
+            <span class="val" id="resSalePelati">0 g</span>  
+          </div>  
+          <div class="result-item">  
+            <span class="label">🧀 Mozzarella Totale</span>  
+            <span class="val" id="resMozzarella">0 g</span>  
+          </div>  
+        </div>  
+      </div>  
+    </div>  
+  </div>  
+  
+  <script>  
+    const mappaFarineW = {  
+      "Caputo Classica (00)": 220,  
+      "Caputo Pizzeria (00)": 265,  
+      "Caputo Nuvola (0)": 270,  
+      "Caputo Cuoco / Chef Rossa": 310,  
+      "Caputo Nuvola Super": 325,  
+      "Caputo Manitoba Oro": 375,  
+      "5 Stagioni Napoletana": 300,  
+      "5 Stagioni Superiore": 330,  
+      "5 Stagioni Manitoba": 390,  
+      "Garofalo W 260": 260,  
+      "Garofalo W 350 Forte": 350,  
+      "Polselli Classica": 240,  
+      "Polselli Vivace": 290,  
+      "Polselli Super": 330,  
+      "Petra 5037 Pizza": 300,  
+      "Petra 3 (Tipo 1)": 280,  
+      "Spadoni Gran Mugnaio Pizza": 200,  
+      "Casillo Origine Pizza": 280  
+    };  
+  
+    const numPanetti = document.getElementById('numPanetti');  
+    const pesoPanetto = document.getElementById('pesoPanetto');  
+    const idratazione = document.getElementById('idratazione');  
+    const idratazioneSlider = document.getElementById('idratazioneSlider');  
+    const hintIdratazione = document.getElementById('hintIdratazione');  
+    const saleLitro = document.getElementById('saleLitro');  
+    const hintSale = document.getElementById('hintSale');  
+    const olioPercent = document.getElementById('olioPercent');  
+    const hintOlio = document.getElementById('hintOlio');  
+    const attrito = document.getElementById('attrito');  
+      
+    const oreTA = document.getElementById('oreTA');  
+    const lblOreTA = document.getElementById('lblOreTA');  
+    const hintOreTA = document.getElementById('hintOreTA');  
+    const tempTA = document.getElementById('tempTA');  
+    const hintTempTA = document.getElementById('hintTempTA');  
+    const oreFrigo = document.getElementById('oreFrigo');  
+    const hintOreFrigo = document.getElementById('hintOreFrigo');  
+    const tempFrigo = document.getElementById('tempFrigo');  
+    const hintTempFrigo = document.getElementById('hintTempFrigo');  
+    const tempTarget = document.getElementById('tempTarget');  
+    const tempFarina = document.getElementById('tempFarina');  
+    const pomoSingolo = document.getElementById('pomoSingolo');  
+    const mozzSingola = document.getElementById('mozzSingola');  
+  
+    const resPesoTotale = document.getElementById('resPesoTotale');  
+    const resFarina = document.getElementById('resFarina');  
+    const resAcqua = document.getElementById('resAcqua');  
+    const resSale = document.getElementById('resSale');  
+    const resOlio = document.getElementById('resOlio');  
+    const resLievitoFresco = document.getElementById('resLievitoFresco');  
+    const resLievitoSecco = document.getElementById('resLievitoSecco');  
+    const resTempAcqua = document.getElementById('resTempAcqua');  
+  
+    const iceBox = document.getElementById('iceBox');  
+    const resGhiaccio = document.getElementById('resGhiaccio');  
+    const resAcquaLiquida = document.getElementById('resAcquaLiquida');  
+  
+    const btnToggleTeglia = document.getElementById('btnToggleTeglia');  
+    const tegliaSection = document.getElementById('tegliaSection');  
+    const tipoTeglia = document.getElementById('tipoTeglia');  
+    const rowRettangolare = document.getElementById('rowRettangolare');  
+    const rowTonda = document.getElementById('rowTonda');  
+    const tegliaBase = document.getElementById('tegliaBase');  
+    const tegliaAltezza = document.getElementById('tegliaAltezza');  
+    const tegliaDiametro = document.getElementById('tegliaDiametro');  
+    const tegliaFattore = document.getElementById('tegliaFattore');  
+    const resPesoTeglia = document.getElementById('resPesoTeglia');  
+    const btnApplicaTeglia = document.getElementById('btnApplicaTeglia');  
+  
+    const btnToggleFarina = document.getElementById('btnToggleFarina');  
+    const farinaSection = document.getElementById('farinaSection');  
+    const numFarineSel = document.getElementById('numFarineSel');  
+    const rowFarina1 = document.getElementById('rowFarina1');  
+    const rowFarina2 = document.getElementById('rowFarina2');  
+    const rowFarina3 = document.getElementById('rowFarina3');  
+    const f1Nome = document.getElementById('f1Nome');  
+    const f1W = document.getElementById('f1W');  
+    const f1Perc = document.getElementById('f1Perc');  
+    const f2Nome = document.getElementById('f2Nome');  
+    const f2W = document.getElementById('f2W');  
+    const f2Perc = document.getElementById('f2Perc');  
+    const f3Nome = document.getElementById('f3Nome');  
+    const f3W = document.getElementById('f3W');  
+    const f3Perc = document.getElementById('f3Perc');  
+    const resWMedio = document.getElementById('resWMedio');  
+    const dosiFarinaDettaglio = document.getElementById('dosiFarinaDettaglio');  
+    const resWTarget = document.getElementById('resWTarget');  
+    const txtOreTotaliW = document.getElementById('txtOreTotaliW');  
+    const checkCompatibilitaW = document.getElementById('checkCompatibilitaW');  
+  
+    const btnToggleAdvanced = document.getElementById('btnToggleAdvanced');  
+    const advancedSection = document.getElementById('advancedSection');  
+    const orarioInfornata = document.getElementById('orarioInfornata');  
+    const advLblOreTA = document.getElementById('advLblOreTA');
+    const advHintOreTA = document.getElementById('advHintOreTA');
+    const durataAppretto = document.getElementById('durataAppretto');  
+    const durataPuntata = document.getElementById('durataPuntata');  
+    const groupAdvPuntata = document.getElementById('groupAdvPuntata');
+    const advRowFrigo = document.getElementById('advRowFrigo');
+    const timelineStandard = document.getElementById('timelineStandard');
+    const timelineBiga = document.getElementById('timelineBiga');
+
+    // Biga elements
+    const btnNapoletana = document.getElementById('btnNapoletana');  
+    const btnContemporanea = document.getElementById('btnContemporanea');  
+    const btnBiga = document.getElementById('btnBiga');  
+    const btnTegliaPreset = document.getElementById('btnTegliaPreset');  
+    const btnPersonalizza = document.getElementById('btnPersonalizza');  
+    const bigaCardSection = document.getElementById('bigaCardSection');  
+    const bigaPerc = document.getElementById('bigaPerc');  
+    const bigaIdro = document.getElementById('bigaIdro');  
+    const hintBigaIdro = document.getElementById('hintBigaIdro');
+    const bigaTemp = document.getElementById('bigaTemp');  
+    const bigaOre = document.getElementById('bigaOre');  
+    const bigaTargetTemp = document.getElementById('bigaTargetTemp');  
+    const bigaW = document.getElementById('bigaW');
+    const bigaResultsBox = document.getElementById('bigaResultsBox');  
+    const resBigaFarina = document.getElementById('resBigaFarina');  
+    const resBigaWDisplay = document.getElementById('resBigaWDisplay');
+    const resBigaAcqua = document.getElementById('resBigaAcqua');  
+    const resBigaLievito = document.getElementById('resBigaLievito');  
+    const resBigaTempAcqua = document.getElementById('resBigaTempAcqua');  
+    const resRinfrescoFarina = document.getElementById('resRinfrescoFarina');  
+    const resRinfrescoWDisplay = document.getElementById('resRinfrescoWDisplay');
+    const resRinfrescoAcqua = document.getElementById('resRinfrescoAcqua');  
+    const resRinfrescoTempAcqua = document.getElementById('resRinfrescoTempAcqua');
+    const resRinfrescoLievito = document.getElementById('resRinfrescoLievito');
+    const resRinfrescoMalto = document.getElementById('resRinfrescoMalto');
+    const resRinfrescoSale = document.getElementById('resRinfrescoSale');  
+    const itemLievitoFrescoStandard = document.getElementById('itemLievitoFrescoStandard');  
+    const itemLievitoSeccoStandard = document.getElementById('itemLievitoSeccoStandard');  
+    const standardWaterBox = document.getElementById('standardWaterBox');
+    const rowFrigoMain = document.getElementById('rowFrigoMain');
+  
+    const resPelati = document.getElementById('resPelati');  
+    const resSalePelati = document.getElementById('resSalePelati');  
+    const resMozzarella = document.getElementById('resMozzarella');  
+  
+    let isBigaMode = false;  
+    let userManuallyChangedBigaIdro = false; // Flag per permettere la personalizzazione manuale
+
+    const domani20 = new Date();  
+    domani20.setDate(domani20.getDate() + 1);  
+    domani20.setHours(20, 0, 0, 0);  
+    orarioInfornata.value = domani20.toISOString().slice(0, 16);  
+
+    function setActivePresetBtn(btnActive) {  
+      [btnNapoletana, btnContemporanea, btnBiga, btnTegliaPreset, btnPersonalizza].forEach(b => b.classList.remove('active'));  
+      if (btnActive) btnActive.classList.add('active');  
+    }  
+
+    function sbloccaTuttiParametri() {  
+      oreFrigo.disabled = false;  
+      tempFrigo.disabled = false;  
+      olioPercent.disabled = false;  
+      oreTA.disabled = false;  
+      oreTA.readOnly = false;
+      tempTA.disabled = false;  
+      idratazione.disabled = false;  
+      idratazioneSlider.disabled = false;  
+      saleLitro.disabled = false;  
+      btnToggleTeglia.disabled = false;  
+      btnToggleAdvanced.disabled = false;  
+      isBigaMode = false;  
+      userManuallyChangedBigaIdro = false;
+      bigaCardSection.style.display = 'none';  
+      bigaResultsBox.style.display = 'none';  
+      itemLievitoFrescoStandard.style.display = 'flex';  
+      itemLievitoSeccoStandard.style.display = 'flex';  
+      standardWaterBox.style.display = 'block';
+      timelineStandard.style.display = 'flex';
+      timelineBiga.style.display = 'none';
+      groupAdvPuntata.style.display = 'block';
+      advRowFrigo.style.display = 'grid';
+      rowFrigoMain.style.display = 'grid';
+      oreFrigo.disabled = false;
+      tempFrigo.disabled = false;
+
+      advLblOreTA.innerText = 'Ore Temp. Ambiente';
+      advHintOreTA.innerText = 'Lievitazione panetti';
+
+      lblOreTA.innerText = 'Ore Temp. Ambiente';
+      hintOreTA.innerText = 'Ore fuori dal frigo';  
+      hintTempTA.innerText = 'Temperatura ambiente';  
+      hintOreFrigo.innerText = 'Maturazione a freddo';  
+      hintTempFrigo.innerText = 'Temperatura del frigo';  
+      hintIdratazione.innerText = 'Sostituisci con la % desiderata (es. 55%, 60%, 62%)';  
+      hintSale.innerText = 'Sale tra 40/60 gr per litro';  
+      hintOlio.innerText = '0 per Napoletana, 2% per Teglia';  
+    }  
+
+    // --- PRESET 1: NAPOLETANA TRADIZIONALE ---  
+    btnNapoletana.addEventListener('click', () => {  
+      setActivePresetBtn(btnNapoletana);  
+      sbloccaTuttiParametri();  
+
+      idratazione.value = 62;  
+      idratazioneSlider.value = 62;  
+      saleLitro.value = 43;  
+      oreTA.value = 8;  
+      olioPercent.value = 0;  
+      olioPercent.disabled = true;  
+      hintOlio.innerText = '🔒 Assente nella Napoletana Tradizionale';  
+
+      oreFrigo.value = 0;  
+      btnToggleTeglia.disabled = true;  
+      tegliaSection.style.display = 'none';  
+      btnToggleTeglia.innerHTML = '📐 Calcolatore Dimensione Teglia';  
+
+      calcola();  
+    });  
+
+    // --- PRESET 2: PIZZA CONTEMPORANEA ---  
+    btnContemporanea.addEventListener('click', () => {  
+      setActivePresetBtn(btnContemporanea);  
+      sbloccaTuttiParametri();  
+
+      idratazione.value = 75;  
+      idratazioneSlider.value = 75;  
+      saleLitro.value = 27;  
+      hintSale.innerText = 'Sale tra 25/30 gr per litro';  
+      olioPercent.value = 0;  
+      olioPercent.disabled = true;  
+      hintOlio.innerText = '🔒 Assente nella Pizza Contemporanea';  
+
+      oreTA.value = 8;  
+      oreFrigo.value = 16;  
+      btnToggleTeglia.disabled = true;  
+      tegliaSection.style.display = 'none';  
+      btnToggleTeglia.innerHTML = '📐 Calcolatore Dimensione Teglia';  
+
+      calcola();  
+    });  
+
+    // --- PRESET 3: BIGA METODO CLASSICO ---  
+    btnBiga.addEventListener('click', () => {  
+      setActivePresetBtn(btnBiga);  
+      sbloccaTuttiParametri();  
+      isBigaMode = true;  
+      userManuallyChangedBigaIdro = false;
+
+      bigaCardSection.style.display = 'block';  
+      bigaResultsBox.style.display = 'block';  
+      itemLievitoFrescoStandard.style.display = 'none';  
+      itemLievitoSeccoStandard.style.display = 'none';  
+      standardWaterBox.style.display = 'none';
+      timelineStandard.style.display = 'none';
+      timelineBiga.style.display = 'flex';
+      groupAdvPuntata.style.display = 'none';
+      advRowFrigo.style.display = 'none';
+      rowFrigoMain.style.display = 'none';
+
+      advLblOreTA.innerText = 'Ore Appretto Finale';
+      advHintOreTA.innerText = 'Riposo panetti post-rinfresco';
+      durataAppretto.value = 4;
+
+      bigaPerc.value = 100;  
+      idratazione.value = 70;  
+      idratazioneSlider.value = 70;  
+      hintIdratazione.innerText = 'Idratazione totale finale';  
+
+      saleLitro.value = 45;  
+      hintSale.innerText = 'Sale su acqua totale (40/50g)';  
+
+      olioPercent.value = 0;  
+      olioPercent.disabled = true;  
+      hintOlio.innerText = '🔒 Assente nella Biga Classica';  
+
+      lblOreTA.innerText = 'Ore Appretto Finale (Sincronizzato)';
+      oreTA.value = 4;  
+      oreTA.readOnly = true;  
+      hintOreTA.hint = 'Sincronizzato con la Modalità Avanzata';
+
+      oreFrigo.value = 0;  
+      oreFrigo.disabled = true;
+      tempFrigo.disabled = true;
+      btnToggleTeglia.disabled = true;  
+      tegliaSection.style.display = 'none';  
+
+      aggiornaIdratazioneBigaAuto();
+      calcolaTimeline();
+      calcola();  
+    });  
+
+    // --- PRESET 4: PIZZA IN TEGLIA ---  
+    function applicaImpostazioniTeglia() {  
+      sbloccaTuttiParametri();  
+      idratazione.value = 75;  
+      idratazioneSlider.value = 75;  
+      saleLitro.value = 25;  
+      hintSale.innerText = 'Sale tra 25/30 gr per litro';  
+      olioPercent.value = 3;  
+      hintOlio.innerText = 'dal 2% al 6% su peso farina';  
+      calcola();  
+    }  
+
+    btnTegliaPreset.addEventListener('click', () => {  
+      setActivePresetBtn(btnTegliaPreset);  
+      applicaImpostazioniTeglia();  
+      if (tegliaSection.style.display === 'none') {  
+        tegliaSection.style.display = 'block';  
+        btnToggleTeglia.innerHTML = '🔽 Nascondi Calcolatore Teglia';  
+      }  
+    });  
+
+    // --- PRESET 5: PERSONALIZZA ---  
+    btnPersonalizza.addEventListener('click', () => {  
+      setActivePresetBtn(btnPersonalizza);  
+      sbloccaTuttiParametri();  
+      numPanetti.value = 10;  
+      pesoPanetto.value = 270;  
+      idratazione.value = 62;  
+      idratazioneSlider.value = 62;  
+      saleLitro.value = 43;  
+      olioPercent.value = 0;  
+      attrito.value = 18;  
+      oreTA.value = 8;  
+      tempTA.value = 20;  
+      oreFrigo.value = 0;  
+      tempFrigo.value, 6;  
+      tempTarget.value = 25;  
+      tempFarina.value = 19;  
+      pomoSingolo.value = 85;  
+      mozzSingola.value = 90;  
+      calcola();  
+    });  
+  
+    function checkAutoW(inputNome, inputW) {  
+      const val = inputNome.value.trim();  
+      if (mappaFarineW[val]) {  
+        inputW.value = mappaFarineW[val];  
+      }  
+    }  
+  
+    f1Nome.addEventListener('input', () => { checkAutoW(f1Nome, f1W); calcola(); });  
+    f2Nome.addEventListener('input', () => { checkAutoW(f2Nome, f2W); calcola(); });  
+    f3Nome.addEventListener('input', () => { checkAutoW(f3Nome, f3W); calcola(); });  
+  
+    btnToggleFarina.addEventListener('click', () => {  
+      if (farinaSection.style.display === 'none') {  
+        farinaSection.style.display = 'block';  
+        btnToggleFarina.innerHTML = '🔽 Nascondi Calcolatore Farine';  
+      } else {  
+        farinaSection.style.display = 'none';  
+        btnToggleFarina.innerHTML = '🌾 Calcolatore Forza Farina (W Mix)';  
+      }  
+    });  
+  
+    btnToggleTeglia.addEventListener('click', () => {  
+      if (tegliaSection.style.display === 'none') {  
+        tegliaSection.style.display = 'block';  
+        btnToggleTeglia.innerHTML = '🔽 Nascondi Calcolatore Teglia';  
+      } else {  
+        tegliaSection.style.display = 'none';  
+        btnToggleTeglia.innerHTML = '📐 Calcolatore Dimensione Teglia';  
+      }  
+    });  
+  
+    btnToggleAdvanced.addEventListener('click', () => {  
+      if (advancedSection.style.display === 'none') {  
+        advancedSection.style.display = 'block';  
+        btnToggleAdvanced.innerHTML = '🔽 Nascondi Modalità Avanzata';  
+      } else {  
+        advancedSection.style.display = 'none';  
+        btnToggleAdvanced.innerHTML = '⚙️ Modalità Avanzata: Calcolo Orari e Timeline';  
+      }  
+      calcolaTimeline();  
+      calcola();  
+    });  
+  
+    idratazioneSlider.addEventListener('input', () => { idratazione.value = idratazioneSlider.value; calcolaTimeline(); calcola(); });  
+    idratazione.addEventListener('input', () => { idratazioneSlider.value = idratazione.value; calcolaTimeline(); calcola(); });  
+  
+    bigaIdro.addEventListener('input', () => {
+      if (isBigaMode) {
+        userManuallyChangedBigaIdro = true;
+        hintBigaIdro.innerText = 'Impostazione manuale personalizzata';
+      }
+      calcola();
+    });
+
+    durataAppretto.addEventListener('input', () => {
+      if (isBigaMode) {
+        oreTA.value = durataAppretto.value;
+      }
+      calcolaTimeline();
+      calcola();
+    });
+
+    bigaOre.addEventListener('input', () => {
+      if (isBigaMode && !userManuallyChangedBigaIdro) {
+        aggiornaIdratazioneBigaAuto();
+      }
+      calcolaTimeline();
+      calcola();
+    });
+
+    bigaTemp.addEventListener('input', () => {
+      if (isBigaMode && !userManuallyChangedBigaIdro) {
+        aggiornaIdratazioneBigaAuto();
+      }
+      calcola();
+    });
+
+    function aggiornaIdratazioneBigaAuto() {
+      if (!isBigaMode || userManuallyChangedBigaIdro) return;
+      const ore = parseFloat(bigaOre.value) || 18;
+      const temp = parseFloat(bigaTemp.value) || 18;
+      
+      // Modello dinamico calibrato sui riscontri di Master Biga
+      // Più ore o temp bassa richiedono più idratazione, ore standard (~18h a 18°C) puntano a ~44-46%
+      let idroStivata = Math.round(58 - (ore * 0.7) - ((temp - 16) * 0.5));
+      idroStivata = Math.max(42, Math.min(55, idroStivata)); // Range tipico biga tra 42% e 55%
+      
+      bigaIdro.value = idroStivata;
+      hintBigaIdro.innerText = `Calcolata automaticamente (${ore}h a ${temp}°C)`;
+    }
+
+    numFarineSel.addEventListener('change', () => {  
+      const n = parseInt(numFarineSel.value, 10);  
+      if (n === 1) { rowFarina1.style.display = 'grid'; rowFarina2.style.display = 'none'; rowFarina3.style.display = 'none'; f1Perc.value = 100; f2Perc.value = 0; f3Perc.value = 0; }  
+      else if (n === 2) { rowFarina1.style.display = 'grid'; rowFarina2.style.display = 'grid'; rowFarina3.style.display = 'none'; f1Perc.value = 70; f2Perc.value = 30; f3Perc.value = 0; }  
+      else { rowFarina1.style.display = 'grid'; rowFarina2.style.display = 'grid'; rowFarina3.style.display = 'grid'; f1Perc.value = 60; f2Perc.value = 25; f3Perc.value = 15; }  
+      calcola();  
+    });  
+  
+    function calcolaMixFarine(farinaTotaleGrammi, oreTotaliEq, idraPerc) {  
+      let wCalBal = 135 + (48 * Math.log(Math.max(2, oreTotaliEq)));  
+      if (idraPerc > 60) { wCalBal += (idraPerc - 60) * 1.3; }  
+  
+      const wTargetMin = Math.round((wCalBal - 8) / 5) * 5;  
+      const wTargetMax = Math.round((wCalBal + 12) / 5) * 5;  
+  
+      txtOreTotaliW.innerText = oreTotaliEq.toFixed(1) + ' ore eq. T.A.';  
+      resWTarget.innerText = `W ${Math.round(wCalBal)} (W ${wTargetMin} - ${wTargetMax})`;  
+  
+      const n = parseInt(numFarineSel.value, 10);  
+      let f1_w = parseFloat(f1W.value) || 0; let f1_p = parseFloat(f1Perc.value) || 0;  
+      let f2_w = parseFloat(f2W.value) || 0; let f2_p = parseFloat(f2Perc.value) || 0;  
+      let f3_w = parseFloat(f3W.value) || 0; let f3_p = parseFloat(f3Perc.value) || 0;  
+  
+      if (n === 1) { f1_p = 100; f2_p = 0; f3_p = 0; }  
+      else if (n === 2) { f3_p = 0; }  
+  
+      const sommaPerc = f1_p + f2_p + f3_p;  
+      const normalizza = sommaPerc > 0 ? (100 / sommaPerc) : 1;  
+      const p1Norm = (f1_p * normalizza) / 100;  
+      const p2Norm = (f2_p * normalizza) / 100;  
+      const p3Norm = (f3_p * normalizza) / 100;  
+  
+      const wFinale = Math.round((f1_w * p1Norm) + (f2_w * p2Norm) + (f3_w * p3Norm));  
+      resWMedio.innerText = wFinale + ' W';  
+  
+      if (wFinale < wTargetMin - 20) {  
+        checkCompatibilitaW.style.background = '#FFEBEE'; checkCompatibilitaW.style.color = '#C62828';  
+        checkCompatibilitaW.innerHTML = `❌ <strong>Farina troppo debole</strong> (Mix: W ${wFinale} vs Target: W ${wTargetMin}-${wTargetMax}). Rischio cedimento maglia glutinica.`;  
+      } else if (wFinale <= wTargetMax + 25) {  
+        checkCompatibilitaW.style.background = '#E8F5E9'; checkCompatibilitaW.style.color = '#2E7D32';  
+        checkCompatibilitaW.innerHTML = `✅ <strong>Bilanciamento Perfetto!</strong> La forza del tuo mix (W ${wFinale}) rientra nel range ideale (W ${wTargetMin}-${wTargetMax}).`;  
+      } else {  
+        checkCompatibilitaW.style.background = '#FFEBEE'; checkCompatibilitaW.style.color = '#C62828';  
+        checkCompatibilitaW.innerHTML = `❌ <strong>Farina troppo forte</strong> (Mix: W ${wFinale} vs Target: W ${wTargetMin}-${wTargetMax}). Rischio impasto tenace e poco estensibile.`;  
+      }  
+  
+      const g1 = Math.round(farinaTotaleGrammi * p1Norm);  
+      const g2 = Math.round(farinaTotaleGrammi * p2Norm);  
+      const g3 = Math.round(farinaTotaleGrammi * p3Norm);  
+  
+      let htmlDosi = `<div><strong>${f1Nome.value || 'Farina 1'}:</strong> ${g1} g (${Math.round(p1Norm * 100)}%)</div>`;  
+      if (n >= 2) { htmlDosi += `<div><strong>${f2Nome.value || 'Farina 2'}:</strong> ${g2} g (${Math.round(p2Norm * 100)}%)</div>`; }  
+      if (n === 3) { htmlDosi += `<div><strong>${f3Nome.value || 'Farina 3'}:</strong> ${g3} g (${Math.round(p3Norm * 100)}%)</div>`; }  
+      dosiFarinaDettaglio.innerHTML = htmlDosi;  
+
+      return Math.round(wCalBal);
+    }  
+  
+    function calcolaTeglia() {  
+      let area = 0;  
+      if (tipoTeglia.value === 'rettangolare') {  
+        rowRettangolare.style.display = 'grid'; rowTonda.style.display = 'none';  
+        area = (parseFloat(tegliaBase.value) || 0) * (parseFloat(tegliaAltezza.value) || 0);  
+      } else {  
+        rowRettangolare.style.display = 'none'; rowTonda.style.display = 'block';  
+        const r = (parseFloat(tegliaDiametro.value) || 0) / 2;  
+        area = Math.PI * r * r;  
+      }  
+      const pesoCalcolato = Math.round(area * (parseFloat(tegliaFattore.value) || 0.5));  
+      resPesoTeglia.innerText = pesoCalcolato + ' g';  
+      return pesoCalcolato;  
+    }  
+  
+    tipoTeglia.addEventListener('change', calcolaTeglia);  
+    tegliaBase.addEventListener('input', calcolaTeglia);  
+    tegliaAltezza.addEventListener('input', calcolaTeglia);  
+    tegliaDiametro.addEventListener('input', calcolaTeglia);  
+    tegliaFattore.addEventListener('change', calcolaTeglia);  
+  
+    btnApplicaTeglia.addEventListener('click', () => {  
+      setActivePresetBtn(btnTegliaPreset);  
+      pesoPanetto.value = calcolaTeglia();  
+      applicaImpostazioniTeglia();  
+    });  
+  
+    function calcolaTimeline() {  
+      const targetVal = orarioInfornata.value;  
+      if (!targetVal) return;  
+      const targetDate = new Date(targetVal);  
+      const apprettoH = parseFloat(durataAppretto.value) || 0;  
+      const frigoH = parseFloat(oreFrigo.value) || 0;  
+      const puntataH = parseFloat(durataPuntata.value) || 0;  
+  
+      const fmt = (d) => `${d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })} h ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;  
+
+      if (isBigaMode) {
+        const bigaH = parseFloat(bigaOre.value) || 18;
+        const msLavorazione = 20 * 60 * 1000;
+        
+        const staglioDate = new Date(targetDate.getTime() - apprettoH * 3600000 - msLavorazione);
+        const rinfrescoDate = new Date(staglioDate.getTime() - msLavorazione);
+        const bigaStartDate = new Date(rinfrescoDate.getTime() - bigaH * 3600000);
+
+        document.getElementById('timeInfornataBiga').innerText = fmt(targetDate);
+        document.getElementById('timeStaglioBiga').innerText = fmt(staglioDate);
+        document.getElementById('timeRinfresco').innerText = fmt(rinfrescoDate);
+        document.getElementById('timeBigaStart').innerText = fmt(bigaStartDate);
+      } else {
+        const msLavorazione = 20 * 60 * 1000;  
+        const staglioDate = new Date(targetDate.getTime() - apprettoH * 3600000 - msLavorazione);  
+        const frigoInDate = new Date(staglioDate.getTime() - frigoH * 3600000);  
+        const impastoDate = new Date(frigoInDate.getTime() - puntataH * 3600000 - msLavorazione);  
+  
+        document.getElementById('timeInfornata').innerText = fmt(targetDate);  
+        document.getElementById('timeStaglio').innerText = fmt(staglioDate);  
+        document.getElementById('timeFrigoIn').innerText = fmt(frigoInDate);  
+        document.getElementById('timeImpasto').innerText = fmt(impastoDate);  
+      }
+    }  
+  
+    orarioInfornata.addEventListener('input', () => { calcolaTimeline(); calcola(); });  
+    durataPuntata.addEventListener('input', () => { calcolaTimeline(); calcola(); });  
+    durataAppretto.addEventListener('input', () => { calcolaTimeline(); calcola(); });  
+    bigaOre.addEventListener('input', () => { calcolaTimeline(); calcola(); });  
+  
+    function calcola() {  
+      const n = parseFloat(numPanetti.value) || 0;  
+      const p = parseFloat(pesoPanetto.value) || 0;  
+      const rawH = parseFloat(idratazione.value) || 0;  
+      const h = rawH / 100;  
+      const sL = parseFloat(saleLitro.value) || 0;  
+      const oP = (parseFloat(olioPercent.value) || 0) / 100;  
+      const attr = parseFloat(attrito.value) || 0;  
+      const tTA = parseFloat(tempTA.value) || 20;  
+      const tTarget = parseFloat(tempTarget.value) || 25;  
+      const tFarina = parseFloat(tempFarina.value) || 19;  
+  
+      const pesoTotale = n * p;  
+      const denom = 1 + h + (h * (sL / 1000)) + oP;  
+      const farina = denom > 0 ? (pesoTotale / denom) : 0;  
+      const acqua = farina * h;  
+      const sale = (acqua / 1000) * sL;  
+      const olio = farina * oP;  
+  
+      const oreF = parseFloat(oreFrigo.value) || 0;  
+      const tF = parseFloat(tempFrigo.value) || 6;  
+      const oreTAval = parseFloat(oreTA.value) || 0;  
+  
+      const divisoreFrigo = 14 - tF;  
+      const oreTAEqFrigo = divisoreFrigo > 0 ? (oreF / divisoreFrigo) : 0;  
+      const oreTotaliEq = oreTAval + oreTAEqFrigo;  
+
+      const wTargetCalcolato = calcolaMixFarine(farina, oreTotaliEq, rawH);
+
+      if (isBigaMode) {  
+        const pBiga = (parseFloat(bigaPerc.value) || 100) / 100;  
+        const bIdro = (parseFloat(bigaIdro.value) || 44) / 100;  
+        const bTemp = parseFloat(bigaTemp.value) || 18;  
+        const bTargetT = parseFloat(bigaTargetTemp.value) || 20;  
+        const bValW = parseFloat(bigaW.value) || 380;
+  
+        const bigaFarina = farina * pBiga;  
+        const bigaAcqua = bigaFarina * bIdro;  
+  
+        // REGOLA ESATTA: Lievito biga esattamente all'1% sulla farina in biga
+        let lievitoBiga = bigaFarina * 0.01;  
+  
+        let tempAcquaBiga = (3 * bTargetT) - bTemp - tFarina - attr;  
+  
+        const rinfrescoFarina = farina - bigaFarina;  
+        const rinfrescoAcqua = acqua - bigaAcqua;  
+        const rinfrescoSale = sale;  
+  
+        let tempAcquaRinfresco = (3 * tTarget) - bTargetT - tFarina - attr;  
+
+        // REGOLA RINFRESCO MASTER BIGA (Tarato a 1.3g di lievito)
+        const apprettoH = parseFloat(durataAppretto.value) || 8;
+        const tAmb = parseFloat(tempTA.value) || 20;
+        const tFin = parseFloat(tempTarget.value) || 24;
+        
+        let fattoreTermico = tFin / 20; 
+        let lievitoRinfresco = (rinfrescoFarina / 1000) * (8 / Math.max(1, apprettoH)) * (20 / Math.max(10, tAmb)) * fattoreTermico * 2.62;
+        lievitoRinfresco = Math.max(0.1, lievitoRinfresco);  
+
+        // MALTO NEL RINFRESCO (Dinamico basato sulla farina di rinfresco, es. ~0.9%)
+        let maltoRinfresco = rinfrescoFarina * 0.0089;
+  
+        resBigaFarina.innerText = bigaFarina.toFixed(0) + ' g';  
+        resBigaWDisplay.innerText = `W ${bValW}`;
+        resBigaAcqua.innerText = bigaAcqua.toFixed(0) + ' g';  
+        resBigaLievito.innerText = `${lievitoBiga.toFixed(2)} g`;  
+        resBigaTempAcqua.innerText = tempAcquaBiga.toFixed(1) + ' °C';  
+  
+        resRinfrescoFarina.innerText = rinfrescoFarina.toFixed(0) + ' g';  
+        resRinfrescoWDisplay.innerText = `W ${wTargetCalcolato}`;
+        resRinfrescoAcqua.innerText = rinfrescoAcqua.toFixed(0) + ' g';  
+        resRinfrescoTempAcqua.innerText = tempAcquaRinfresco.toFixed(1) + ' °C';  
+        resRinfrescoLievito.innerText = `${lievitoRinfresco.toFixed(2)} g`;
+        resRinfrescoMalto.innerText = `${maltoRinfresco.toFixed(1)} g`;
+        resRinfrescoSale.innerText = rinfrescoSale.toFixed(1) + ' g';  
+      }  
+  
+      const fattoreTempo = 24.3 / Math.max(4, oreTotaliEq);  
+      const fattoreTemp = 17 / Math.max(5, tTA);  
+      const correzioneTarget = 1 - ((tTarget - 20) * 0.04);  
+  
+      let lievitoFresco = (farina / 1000) * fattoreTempo * fattoreTemp * correzioneTarget;  
+      lievitoFresco = Math.max(0.1, lievitoFresco);  
+  
+      let lievitoSecco = 0;  
+      if (oreTotaliEq > 0) {  
+        lievitoSecco = (farina / 1000) * (4 / oreTotaliEq) * (1 - ((tTarget - 20) / 20));  
+        if (lievitoSecco < 0.05) lievitoSecco = 0.05;  
+      }  
+  
+      const tempAcqua = (3 * tTarget) - tTA - tFarina - attr;  
+      const tempAcquaBase = 4;  
+        
+      if (tempAcqua < tempAcquaBase) {  
+        let ghiaccio = acqua * ((tempAcquaBase - tempAcqua) / (80 + tempAcquaBase));  
+        if (ghiaccio > acqua) ghiaccio = acqua;  
+        if (ghiaccio < 0) ghiaccio = 0;  
+        let acquaLiquida = acqua - ghiaccio;  
+  
+        resGhiaccio.innerText = ghiaccio.toFixed(0) + ' g';  
+        resAcquaLiquida.innerText = acquaLiquida.toFixed(0) + ' g';  
+        iceBox.style.display = 'block';  
+      } else {  
+        iceBox.style.display = 'none';  
+      }  
+  
+      const pSingolo = parseFloat(pomoSingolo.value) || 0;  
+      const mSingola = parseFloat(mozzSingola.value) || 0;  
+      const pelatiTot = n * pSingolo;  
+      const salePelati = pelatiTot * 0.011;  
+      const mozzTot = n * mSingola;  
+  
+      resPesoTotale.innerText = pesoTotale.toFixed(0) + ' g';  
+      resFarina.innerText = farina.toFixed(1) + ' g';  
+      resAcqua.innerText = acqua.toFixed(1) + ' g';  
+      resSale.innerText = sale.toFixed(1) + ' g';  
+      resOlio.innerText = olio.toFixed(1) + ' g';  
+      
+      resLievitoFresco.innerText = lievitoFresco < 0.5 ? `${lievitoFresco.toFixed(2)} g (un pizzico)` : `${lievitoFresco.toFixed(2)} g`;  
+      resLievitoSecco.innerText = lievitoSecco < 0.2 ? `${lievitoSecco.toFixed(2)} g (un pizzico)` : `${lievitoSecco.toFixed(2)} g`;  
+      
+      resTempAcqua.innerText = tempAcqua.toFixed(1) + ' °C';  
+  
+      resPelati.innerText = pelatiTot.toFixed(0) + ' g';  
+      resSalePelati.innerText = salePelati.toFixed(2) + ' g';  
+      resMozzarella.innerText = mozzTot.toFixed(0) + ' g';  
+    }  
+  
+    document.querySelectorAll('input:not(#idratazione):not(#idratazioneSlider):not(#advTempTA):not(#advOreFrigo):not(#advTempFrigo):not(#f1Nome):not(#f2Nome):not(#f3Nome), select').forEach(el => {  
+      el.addEventListener('input', () => {  
+        calcolaTimeline();  
+        calcola();  
+      });  
+    });  
+  
+    calcolaTeglia();  
+    calcolaTimeline();  
+    calcola();  
+  </script>  
+</body>  
+</html>
